@@ -80,57 +80,190 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" >
+    <div class="modal fade" id="addModal">
         <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-              <h4 class="modal-title">新增分类</h4>
-            </div>
-            <div class="modal-body">
-              <form>
-                <div class="form-group">
-                  <label for="recipient-name" class="control-label">分类名称:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title">新增分类</h4>
                 </div>
-                <div class="form-group">
-                  <label for="message-text" class="control-label">分类别名:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input type="text" class="form-control" id="recipient-slug">
+                        </div>
+                    </form>
                 </div>
-              </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
+                    <button type="button" class="btn btn-primary" id="model_add">新增</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
-              <button type="button" class="btn btn-primary" id="model_add">新增</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 
-      <script>
-          $('#addModal').modal({
-            show:false,
-            backdrop:false
-          });
 
-          $('#model_shutoff').click(function(){
+    <!-- 模态框 -->
+    <div class="modal fade" id="addModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input type="text" class="form-control" id="recipient-slug">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
+                    <button type="button" class="btn btn-primary" id="model_add">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $('#addModal').modal({
+            show: false,
+            backdrop: false
+        });
+
+        $('#model_shutoff').click(function () {
             alert('shutoff');
             $('#addModal').modal('hide');
-          });
+        });
 
-          $('#model_add').click(function(){
-            alert('add');
-            $('#addModal').modal('hide');
-          });
 
-          $('.category_table').delegate('a','click',function(){
-              if($(this).hasClass('btn-info')){
+        $('.category_table').delegate('a', 'click', function () {
+            if ($(this).hasClass('btn-info')) {
                 $('#addModal .modal-title').html('修改分类名称');
                 $('#addModal').modal('show');
-              }
-          })      
-      </script>
+            }
+        })
+    </script>
 
+
+
+
+    <!-- 导入模版引擎js文件 -->
+    <script src="./js/template-web.js"></script>
+    <!-- 创建模版 -->
+    <script type="text/html" id="tpl">
+    {{each data}}
+     <tr>
+        <td>{{$value.name}}</td>
+        <td>{{$value.slug}}</td>
+        <td class="text-center">
+            <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
+                class="btn btn-info btn-xs">编辑</a>
+            <a href="javascript:deleteTr( 1 );" class="btn btn-danger btn-xs">删除</a>
+        </td>
+    </tr>
+    {{/each}}
+    </script>
+
+
+    <script type="text/html" id="tpl2">
+
+        <tr>
+            <td>{{name}}</td>
+            <td>{{slug}}</td>
+            <td class="text-center">
+                <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
+                    class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:deleteTr( 1 );" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+    
+    </script>
+
+
+
+    <script>
+
+        // 在主页里一进来就获取文章类别信息并显示出来
+        // 调用接口发现哟很多要渲染,,,直接用模版
+
+        $(function () {
+            function getData() {
+
+                $.get({
+                    url: 'http://localhost:8000/admin/category_search',
+                    success: function (res) {
+
+                        console.log(res);
+                        if (res.code == 200) {
+                            var html = template('tpl', res);
+                            $('tbody').html(html);
+                        }
+                    }
+                });
+            }
+
+            // 页面已经入调用行数
+            // 在主页里一进来就获取文章类别信息并显示出来
+            getData();
+
+
+            $('#model_add').click(function () {
+
+
+                var cateName = $('#recipient-name').val().trim();
+                var cateSlug = $('#recipient-slug').val().trim();
+                $.post({
+
+                    url: 'http://localhost:8000/admin/category_add',
+                    data: {
+                        name: cateName,
+                        slug: cateSlug
+                    },
+                    success: function (res) {
+                        console.log(res);
+                        if (res.code == 200) {
+                            //刷新可以
+                            //location.reload();
+
+                            //不刷新重新ajax请求显示一次.
+                            //getData(); //这种方式性能不高.
+
+
+                            //直接操作dom树,给当前的dom树添加一个tr就行.
+
+
+                            var obj = {
+                                name: cateName,
+                                slug: cateSlug
+                            };
+                            var html2 = template('tpl2', obj);
+                            $('tbody').html(html2);
+
+                        }
+
+                    }
+                });
+                //隐藏模态框
+                $('#addModal').modal('hide');
+            });
+
+        });
+
+
+    </script>
 </body>
 
 </html>
