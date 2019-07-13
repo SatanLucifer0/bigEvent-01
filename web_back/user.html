@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
 
 </head>
 
@@ -22,19 +23,19 @@
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form">
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
+                    <label for="inputEmail3" name="uesrname" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="inputEmail3" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
+                    <label for="inputEmail3" name="nickname" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="inputEmail3" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
+                    <label for="inputEmail3" name='email' class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
                         <input type="text" class="form-control" id="inputEmail3" value="lisisi@126.com">
                     </div>
@@ -43,13 +44,18 @@
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
-                        <img src="images/2.jpg" alt="" class="user_pic">
-                        <input type="file" id="exampleInputFile">
+                        <img src="images/2.jpg" alt="" class="user_pic" style="display: block">
+
+                        <!-- 美化按钮 -->
+                        <input type="file"  style='display:none' name='user_pic' id="exampleInputFile">
+                        <label for="exampleInputFile">
+                            <img src="./images/1.png" alt="" style="height: 30px">
+                        </label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">密码：</label>
+                    <label for="inputEmail3" name='password' class="col-sm-2 control-label">密码：</label>
                     <div class="col-sm-4">
                         <input type="password" class="form-control" id="inputEmail3" value="12345678">
                     </div>
@@ -64,6 +70,28 @@
             </form>
         </div>
     </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">温馨提示</h4>
+                </div>
+                <div class="modal-body">
+                    修改成功!
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <script>
 
@@ -84,21 +112,64 @@
 
             // 页面有主页一跳进来就获取用户信息并显示
             $.ajax({
-                type:'get',    /* ajax请求get方式默认可以不写 */
-                url:'http://localhost:8000/admin/userinfo_get',
-                success:function(res){
-                
+                type: 'get',    /* ajax请求get方式默认可以不写 */
+                url: 'http://localhost:8000/admin/userinfo_get',
+                success: function (res) {
+
                     console.log(res);
-                    for(var key in res.data){
-                        $('.'+key).val(res.data[key]);
+                    // 遍历res 得到里面的属性名 
+                    for (var key in res.data) {
+                        $('.' + key).val(res.data[key]);   /* $('.key') 最后拼接成校长的样子*/
                     }
                     $('.user_pic').attr('src', res.data.user_pic);
                 }
             });
-
-
         });
 
+
+
+        // 用户信息修改
+        $('.btn-success').on('click', function (e) {
+            e.preventDefault();
+
+            // 获取表当里所有信息
+            var fm = new FormData($('.article_form')[0]);
+            // 用formData时候,,,他的那个函属性里必须有name属性  ,  属性值为要求的参数
+
+            $.ajax({
+                type: 'post',
+                url: 'http://localhost:8000/admin/userinfo_edit',
+                contentType: false,
+                processData: false,
+                success: function (res) {
+                    console.log(res);
+                 
+                    // 修改成功,,弹出确认按钮
+                    $('#myModal').modal();
+                    $('.btn-primary').on('click', function () {
+
+                        //  parent.location.reload();  //刷新iframe的父页面
+
+                        //  发送请求,把修改的信息显示在相应位置
+                        $.ajax({
+                            type: 'get',
+                            url: 'http://localhost:8000/admin/getuser',
+                            success: function (res) {
+
+                                if (res.code == 200) {
+
+                                    $('.user_info').children('span').html('欢迎&nbsp;&nbsp;' + res.data.nickname);
+                                    $('.user_info').children('img').attr('src', res.data.user_pic);
+                                    $('.user_center_link').children('img').attr('src', res.data.user_pic);
+                                }
+                            }
+                        });
+                    });
+                    $('#myModal').modal('hide');
+                }
+            });
+
+        });
 
 
     </script>
