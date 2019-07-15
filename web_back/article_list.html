@@ -23,14 +23,14 @@
                 <div class="col-xs-6">
                     <form class="form-inline">
                         <select id="selCategory" name="" class="form-control input-sm">
-                            <option>所有分类</option>
+                            <option value=''>所有分类</option>
                             <option>未分类</option>
                             <option>奇趣事</option>
                             <option>会生活</option>
                             <option>爱旅行</option>
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
-                            <option>所有状态</option>
+                            <option value=''>所有状态</option>
                             <option>草稿</option>
                             <option>已发布</option>
                         </select>
@@ -274,16 +274,21 @@
             window.parent.setMenu(1, 1);
         })
     </script>
+
+    <!-- 导入分页插件,还基于bootstrap,,所以导入bootstrap.js -->
+    <script src="./js/jquery.twbsPagination.min.js"></script>
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
+
     <!-- 导入模版引擎的js文件 -->
     <script src="./js/template-web.js"></script>
 
     <!-- 创建所有文章类别的模版 -->
     <script id="art_cate" type="text/html">
             <!-- type类型在接口里是id 可以为空就是所有类型文章 -->
-            <option value=''>所有分类</option>
-            {{each data}}
-                   <option value='{{$value.id}}'>{{$value.name}}</option>
-            {{/each}}
+    <option value=''>所有分类</option>
+    {{each data}}
+    <option value='{{$value.id}}'>{{$value.name}}</option>
+    {{/each}}
     </script>
 
     <!-- 点击筛选显示文章的模版 -->
@@ -303,6 +308,8 @@
        {{/each}}
     
     </script>
+
+
     <script>
 
 
@@ -316,7 +323,7 @@
                 url: 'http://localhost:8000/admin/category_search',
                 success: function (res) {
                     // 获取到的十多个,,用模版引擎生成并渲染在下拉框中
-                    console.log(res);
+                    // console.log(res);
                     if (res.code == 200) {
                         // 返回的是一个对象里面有,name/slug/id, 对应的id是对应的类别,,,所以在模版里给类别加一个value属性,,属性值就是id
                         // 当调用val()方法时候, 有value属性找到的就是value的属性值,没有找到就是 option标签里的文本值
@@ -330,9 +337,9 @@
 
 
             // 根据下拉框筛选出的文章函数封装
-            function getData(){
+            function getData(page) {
 
-                 // 获取前面两个下拉框里的选中内容,,就是文章类别和文章状态
+                // 获取前面两个下拉框里的选中内容,,就是文章类别和文章状态
                 // 要对两个下拉框做处理,,,,用 val()方法获取,
                 var category = $('#selCategory').val();    /* 获取类别但在接口里返回的是id代替,,,而我们把id值放在 option里面的 value里面 */
                 var selStatus = $('#selStatus').val();
@@ -342,7 +349,7 @@
                     data: {
                         type: category,
                         state: selStatus,
-                        page: 1,
+                        page: page,
                         perpage: 5
                     },
                     success: function (res) {
@@ -350,6 +357,7 @@
                         if (res.code == 200) {
                             var html = template('art_list', res);
                             $('tbody').html(html);
+                          
                         }
 
                     }
@@ -363,15 +371,33 @@
                 e.preventDefault();
 
                 // 有多个,,建立模版引擎,,生成渲染
-                getData();
+                getData(1);
 
             });
 
 
+            // 已进入页面就展示所有文章,,,相当于一进来就触发了筛选按钮的点击事件,,
+            // 并且默认前两个下拉框是 选择了所有类别和所有状态
+            // 注意:进来直接触发筛选的点击事件也就是调用了里面  getData 的函数,
+            // var category = $('#selCategory').val();  函数里这一句获取的类是前面结构代码里的option里面的文本值(所有分类)
+            $('#btnSearch').trigger('click');
 
 
 
+ 
+            // 进去文章分页显示,用插件 pagination
+            $('.pagination').twbsPagination({
+                totalPages: 22,
+                visiblePages: 5,
+                first: '首页',
+                last: '尾页',
+                prev: '上一页',
+                next: '下一页',
+                onPageClick: function (event, page) {
+                    getData(page)
 
+                }
+            });
 
 
         });
