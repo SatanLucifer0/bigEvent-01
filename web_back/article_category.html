@@ -137,6 +137,7 @@
     </div>
 
 
+
     <script>
         $('#addModal').modal({
             show: false,
@@ -169,16 +170,15 @@
         <td>{{$value.name}}</td>
         <td>{{$value.slug}}</td>
         <td class="text-center">
-            <a href="javascript:editTr({&quot;id&quot;:&quot;1&quot;,&quot;slug&quot;:&quot;uncategorized&quot;,&quot;name&quot;:&quot;未分类&quot;});"
-                class="btn btn-info btn-xs">编辑</a>
-            <a href="javascript:deleteTr( 1 );" class="btn btn-danger btn-xs">删除</a>
+            <a href=href="#" data-id='{{$value.id}}' class="btn btn-info btn-xs btn-edit">编辑</a>
+            <a href="#" data-id='{{$value.id}}' class="btn btn-danger btn-xs btn-delete">删除</a>
         </td>
     </tr>
     {{/each}}
     </script>
 
 
-    <script type="text/html" id="tpl2">
+    <!-- <script type="text/html" id="tpl2">
 
         <tr>
             <td>{{name}}</td>
@@ -190,7 +190,7 @@
             </td>
         </tr>
     
-    </script>
+    </script> -->
 
 
 
@@ -236,29 +236,53 @@
                         console.log(res);
                         if (res.code == 200) {
                             //刷新可以
-                            //location.reload();
+                            // 1. location.reload();
 
-                            //不刷新重新ajax请求显示一次.
-                            //getData(); //这种方式性能不高.
+                            // 2. 不刷新重新ajax请求显示一次.
+                            getData(); //这种方式性能不高.
 
-
-                            //直接操作dom树,给当前的dom树添加一个tr就行.
-
-
-                            var obj = {
-                                name: cateName,
-                                slug: cateSlug
-                            };
-                            var html2 = template('tpl2', obj);
-                            $('tbody').html(html2);
-
+                            // 3. 直接操作dom树,给当前的dom树添加一个tr就行.
                         }
-
                     }
                 });
                 //隐藏模态框
                 $('#addModal').modal('hide');
             });
+
+
+            // 分类删除,,,因为使用模版引擎生成的类,,,所以删除用时间委托
+            // 删除使用 传入的参数是id  所以首先要获取id  在模版中我们把id存在了自定义属性 data_id 里
+            $('tbody').on('click', '.btn-delete', function (e) {
+                e.preventDefault();
+
+                if (confirm('你确定要删除吗?')) {
+
+                    var cateId = $(this).attr('data-id');
+                    console.log(cateId);
+
+                    // 发送请求删数据
+                    var that = $(this);
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:8000/admin/category_delete',
+                        data: { id: cateId },
+                        success: function (res) {
+                            if (res.code == 200) {
+                                console.log(res);
+                                that.parents('tr').remove();
+                            }
+                        }
+                    });
+                }
+            });
+
+
+            // $('tbody').on('click', '.btn-edit', function (e) {
+            //     e.preventDefault();
+
+
+
+            // });
 
         });
 
