@@ -31,8 +31,8 @@
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
                             <option>所有状态</option>
-                            <option value="drafted">草稿</option>
-                            <option value="published">已发布</option>
+                            <option>草稿</option>
+                            <option>已发布</option>
                         </select>
                         <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
                     </form>
@@ -58,7 +58,7 @@
 
 
                     <tr>
-                        
+
                         <td>王积千造统最头</td>
                         <td>杰克</td>
                         <td>奇趣事</td>
@@ -77,7 +77,7 @@
 
 
                     <tr>
-                     
+
                         <td>级电使正回</td>
                         <td>肉丝</td>
                         <td>爱旅行</td>
@@ -96,7 +96,7 @@
 
 
                     <tr>
-                       
+
                         <td>近难领管年算</td>
                         <td>杰克</td>
                         <td>会生活</td>
@@ -115,7 +115,7 @@
 
 
                     <tr>
-                       
+
                         <td>龙大实究</td>
                         <td>杰克</td>
                         <td>未分类</td>
@@ -134,7 +134,7 @@
 
 
                     <tr>
-                      
+
                         <td>算性得走来拉</td>
                         <td>肉丝</td>
                         <td>奇趣事</td>
@@ -153,7 +153,7 @@
 
 
                     <tr>
-                      
+
                         <td>几平会出气</td>
                         <td>管理员</td>
                         <td>奇趣事</td>
@@ -172,7 +172,7 @@
 
 
                     <tr>
-                      
+
                         <td>世团先证型角</td>
                         <td>杰克</td>
                         <td>奇趣事</td>
@@ -191,7 +191,7 @@
 
 
                     <tr>
-                      
+
                         <td>构更反步五</td>
                         <td>肉丝</td>
                         <td>奇趣事</td>
@@ -210,7 +210,7 @@
 
 
                     <tr>
-                       
+
                         <td>组方些</td>
                         <td>肉丝</td>
                         <td>会生活</td>
@@ -229,7 +229,7 @@
 
 
                     <tr>
-                      
+
                         <td>日做发光成</td>
                         <td>管理员</td>
                         <td>爱旅行</td>
@@ -250,31 +250,132 @@
             </table>
 
             <div class="row text-center">
-            <ul class="pagination pagination-sm">
-                <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
-                <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
-                <li class="page-item active"><a href="#" class="page-link">1</a></li>
-                <li class="page-item"><a href="#" class="page-link">2</a></li>
-                <li class="page-item"><a href="#" class="page-link">3</a></li>
-                <li class="page-item"><a href="#" class="page-link">4</a></li>
-                <li class="page-item"><a href="#" class="page-link">5</a></li>
-                <li class="page-item"><a href="#" class="page-link">6</a></li>
-                <li class="page-item"><a href="#" class="page-link">7</a></li>
-                <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
-                <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
-            </ul>
-        </div>
+                <ul class="pagination pagination-sm">
+                    <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
+                    <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
+                    <li class="page-item active"><a href="#" class="page-link">1</a></li>
+                    <li class="page-item"><a href="#" class="page-link">2</a></li>
+                    <li class="page-item"><a href="#" class="page-link">3</a></li>
+                    <li class="page-item"><a href="#" class="page-link">4</a></li>
+                    <li class="page-item"><a href="#" class="page-link">5</a></li>
+                    <li class="page-item"><a href="#" class="page-link">6</a></li>
+                    <li class="page-item"><a href="#" class="page-link">7</a></li>
+                    <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
+                    <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
+                </ul>
+            </div>
 
         </div>
     </div>
 
     <script>
         // 设置左侧菜单
-        $('#release_btn').click(function(){
-            window.parent.setMenu(1,1);
+        $('#release_btn').click(function () {
+            window.parent.setMenu(1, 1);
         })
     </script>
+    <!-- 导入模版引擎的js文件 -->
+    <script src="./js/template-web.js"></script>
 
+    <!-- 创建所有文章类别的模版 -->
+    <script id="art_cate" type="text/html">
+            <!-- type类型在接口里是id 可以为空就是所有类型文章 -->
+            <option value=''>所有分类</option>
+            {{each data}}
+                   <option value='{{$value.id}}'>{{$value.name}}</option>
+            {{/each}}
+    </script>
+
+    <!-- 点击筛选显示文章的模版 -->
+    <script id="art_list" type="text/html">
+       {{each data v}}
+       <tr>
+            <td>{{v.title}}</td>
+            <td>{{v.author}}</td>
+            <td>{{v.type}}</td>
+            <td class="text-center">{{v.date}}</td>
+            <td class="text-center">{{v.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+                <a href="#" data_id="{{v.id}}" class="btn btn-danger btn-xs data_id">删除</a>
+            </td>
+    </tr>
+       {{/each}}
+    
+    </script>
+    <script>
+
+
+
+
+        // 入口函数
+        $(function () {
+
+            //  由主页面进去到文章管理页面后,,,就发送请求把文章的所有类别展示在文章分类下拉框里 
+            $.get({
+                url: 'http://localhost:8000/admin/category_search',
+                success: function (res) {
+                    // 获取到的十多个,,用模版引擎生成并渲染在下拉框中
+                    console.log(res);
+                    if (res.code == 200) {
+                        // 返回的是一个对象里面有,name/slug/id, 对应的id是对应的类别,,,所以在模版里给类别加一个value属性,,属性值就是id
+                        // 当调用val()方法时候, 有value属性找到的就是value的属性值,没有找到就是 option标签里的文本值
+                        var html = template('art_cate', res);
+                        $('#selCategory').html(html);
+                    }
+
+                }
+            });
+
+
+
+            // 根据下拉框筛选出的文章函数封装
+            function getData(){
+
+                 // 获取前面两个下拉框里的选中内容,,就是文章类别和文章状态
+                // 要对两个下拉框做处理,,,,用 val()方法获取,
+                var category = $('#selCategory').val();    /* 获取类别但在接口里返回的是id代替,,,而我们把id值放在 option里面的 value里面 */
+                var selStatus = $('#selStatus').val();
+
+                $.get({
+                    url: 'http://localhost:8000/admin/search',
+                    data: {
+                        type: category,
+                        state: selStatus,
+                        page: 1,
+                        perpage: 5
+                    },
+                    success: function (res) {
+                        console.log(res);
+                        if (res.code == 200) {
+                            var html = template('art_list', res);
+                            $('tbody').html(html);
+                        }
+
+                    }
+                });
+            }
+
+
+
+            // 点击筛选按钮完成筛选功能并把结果渲染的页面
+            $('#btnSearch').on('click', function (e) {
+                e.preventDefault();
+
+                // 有多个,,建立模版引擎,,生成渲染
+                getData();
+
+            });
+
+
+
+
+
+
+
+
+        });
+    </script>
 </body>
 
 </html>
