@@ -13,6 +13,7 @@
     <link type="text/css" rel="stylesheet" href="js/jedate/css/jedate.css">
     <script src="js/jquery-1.12.4.min.js"></script>
     <script src="js/jedate/js/jedate.js"></script>
+    <SCRipt src="./js/moment.js"></SCRipt>
     <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="js/tinymce/js/tinymce_setup.js"></script>
 
@@ -83,6 +84,12 @@
         </div>
     </div>
 
+
+    
+
+
+
+
     <script src="./js/template-web.js"></script>
     <script id="tmp_cate" type="text/html">
         {{each data v}}
@@ -121,6 +128,16 @@
 
             // 已进入页面就在发布时间栏里显示当前时间
             // 这个日历框是一个插件叫  jeDate 日历选择插件做的
+            // 已经导入了 jeDate.js文件了
+            var currentDate =moment().format('YYYY-MM-DD');
+            console.log(currentDate);
+            $('#dateinput').val(currentDate);
+
+          
+            
+            // 发布内容是一个富文本域,,,用插件 tinyMCE 做的
+            // <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>     这是导入的基本样式来源于官网里快速开始的步骤2
+            // <script src="js/tinymce/js/tinymce_setup.js"></script>         这是对这个富文本的优化 功能跟多
 
 
 
@@ -128,8 +145,8 @@
 
 
         });
-
-
+        
+        
     </script>
 </body>
 
