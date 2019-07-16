@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" placeholder="文章标题">
+                        <input type="email" name="title" class="form-control" id="inputEmail3" placeholder="文章标题">
                     </div>
                 </div>
                 <div class="form-group">
@@ -37,13 +37,13 @@
                     <div class="col-sm-10">
                         <!-- 加一个img标签来做图片预览 -->
                         <img src="./images/2.jpg" alt="" style="height: 120px;"><br>
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" name="cover" id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control art-cate">
+                        <select name="type" class="form-control art-cate">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -57,7 +57,7 @@
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="dateinput">
+                            <input type="text" class="form-control" name="date" placeholder="YYYY-MM-DD" id="dateinput">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
@@ -69,14 +69,14 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
-                        <textarea class="form-control" id="rich_content" name="content" placeholder="文章内容">
+                        <textarea class="form-control" id="rich_content" placeholder="文章内容">
                             Lorem ipsum dolor sit amet consectetur adipisicing elit. Assumenda fugiat illo nihil molestias ab. Laborum eius non atque, totam sapiente quae obcaecati assumenda ratione inventore pariatur maiores, qui libero delectus.
-                            </textarea>
+                        </textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">发布</button>
+                        <button type="submit" class="btn btn-success btn-release">发布</button>
                         <button type="submit" class="btn btn-default">存为草稿</button>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
     </div>
 
 
-    
+
 
 
 
@@ -129,24 +129,44 @@
             // 已进入页面就在发布时间栏里显示当前时间
             // 这个日历框是一个插件叫  jeDate 日历选择插件做的
             // 已经导入了 jeDate.js文件了
-            var currentDate =moment().format('YYYY-MM-DD');
+            var currentDate = moment().format('YYYY-MM-DD');
             console.log(currentDate);
             $('#dateinput').val(currentDate);
 
-          
-            
+
+
             // 发布内容是一个富文本域,,,用插件 tinyMCE 做的
-            // <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>     这是导入的基本样式来源于官网里快速开始的步骤2
-            // <script src="js/tinymce/js/tinymce_setup.js"></script>         这是对这个富文本的优化 功能跟多
+            // tinymce.min.js"> 这是导入的基本样式来源于官网里快速开始的步骤2
+
+            //   tinymce_setup.js"    这是对这个富文本的优化 功能跟多
+
+            // 点击发布发送亲求
+
+            $('.btn-release').on('click', function () {
+                var fm = new FormDate($('form')[0]); /*创建formDate对象时,,在获取值的时候要设置 name 属性 属性值和请求里面的参数最好和里面传的参数一直 */
 
 
+                // 文本域里面的 内容获取之后靠 append 追加到参数里面去
+                // 文章的状态也要通过 append 追加到参数里
+                fm.append('content', tinyMCE.activeEditor.getContent());
+                fm.append('state', '草稿');
+                
+                $.post({
+                    url:'http://localhost:8000/admin/article_publish',
+                    data:formData1,
+                    contentType:false,
+                    processData:false,
+                    success:function(backData){
+                        if(backData.code == 201){
+                            alert('发布成功!');
+                        }
+                    }
+                });
 
-
-
-
+            });
         });
-        
-        
+
+
     </script>
 </body>
 
