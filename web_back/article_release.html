@@ -15,6 +15,7 @@
     <script src="js/jedate/js/jedate.js"></script>
     <script src="js/tinymce/js/tinymce/tinymce.min.js"></script>
     <script src="js/tinymce/js/tinymce_setup.js"></script>
+
 </head>
 
 <body>
@@ -33,13 +34,15 @@
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
+                        <!-- 加一个img标签来做图片预览 -->
+                        <img src="./images/2.jpg" alt="" style="height: 120px;"><br>
                         <input type="file" id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
+                        <select class="form-control art-cate">
                             <option>1</option>
                             <option>2</option>
                             <option>3</option>
@@ -80,6 +83,54 @@
         </div>
     </div>
 
+    <script src="./js/template-web.js"></script>
+    <script id="tmp_cate" type="text/html">
+        {{each data v}}
+        <option value='{{v.id}}'>{{v.name}}</option>
+        {{/each}}
+    </script>
+
+
+
+    <script>
+
+        $(function () {
+
+            // 文章新增图片预览
+            $('#exampleInputFile').on('change', function () {
+
+                var icon = URL.createObjectURL(this.files[0]);
+                $(this).prev().prev().attr('src', icon);
+
+            });
+
+
+            // 把所有类别显示在下拉框中
+            // 发送请求获取,再把获取的所有类别用模板引擎创建渲染在下拉框里
+            $.ajax({
+                url: 'http://localhost:8000/admin/category_search ',
+                success: function (res) {
+                    if (res.code == 200) {
+                        var html = template('tmp_cate', res);
+                        $('.art-cate').html(html);
+                    }
+                }
+            });
+
+
+
+            // 已进入页面就在发布时间栏里显示当前时间
+            // 这个日历框是一个插件叫  jeDate 日历选择插件做的
+
+
+
+
+
+
+        });
+
+
+    </script>
 </body>
 
 </html>
