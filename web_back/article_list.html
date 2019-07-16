@@ -329,8 +329,8 @@
                         // 当调用val()方法时候, 有value属性找到的就是value的属性值,没有找到就是 option标签里的文本值
                         var html = template('art_cate', res);
                         $('#selCategory').html(html);
-                    }
 
+                    }
                 }
             });
 
@@ -357,7 +357,20 @@
                         if (res.code == 200) {
                             var html = template('art_list', res);
                             $('tbody').html(html);
-                          
+
+
+                            // 分页功能完善的部分代码
+                            var totalPages = res.totalPage;   /* 发送请求获得返回的总页数赋值给新的总页数 */
+
+                            if (myTotalPage != totalPages) {   /* 因为在分页里调用了twbsPagination方法从而调用了getData而这个函数发送请求有调用twbsPagination,形成了递归无限循环,,需要一个结束语句 */
+                                myTotalPage = totalPages;    /* 新的总页数赋值给我们定义的变量传给分页功能部分函数使用 */
+                                var currentPage = $pagination.twbsPagination('getCurrentPage');
+                                $pagination.twbsPagination('destroy');
+                                $pagination.twbsPagination($.extend({}, defaultOpts, {
+                                    startPage: 1,     /* 每次筛选后默认显示到第一页 */
+                                    totalPages: totalPages
+                                }));
+                            }
                         }
 
                     }
@@ -384,10 +397,28 @@
 
 
 
- 
+
             // 进去文章分页显示,用插件 pagination
-            $('.pagination').twbsPagination({
-                totalPages: 22,
+            // $('.pagination').twbsPagination({
+            //     totalPages: 22,
+            //     visiblePages: 5,
+            //     first: '首页',
+            //     last: '尾页',
+            //     prev: '上一页',
+            //     next: '下一页',
+            //     onPageClick: function (event, page) {
+            //         getData(page)             打印page和event发现点击时,page是相应的页码,,,而event是点击相应的页码粗发的事件
+
+            //     }
+            // });
+
+
+
+            // 进去文章分页显示,用插件 pagination
+            var myTotalPage = 10;
+            var $pagination = $('.pagination');
+            var defaultOpts = {
+                totalPages: myTotalPage,
                 visiblePages: 5,
                 first: '首页',
                 last: '尾页',
@@ -397,7 +428,14 @@
                     getData(page)
 
                 }
-            });
+            };
+            $pagination.twbsPagination(defaultOpts);
+
+
+
+
+
+
 
 
         });
