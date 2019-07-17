@@ -301,8 +301,8 @@
             <td class="text-center">{{v.date}}</td>
             <td class="text-center">{{v.state}}</td>
             <td class="text-center">
-                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
-                <a href="#" data_id="{{v.id}}" class="btn btn-danger btn-xs data_id">删除</a>
+                <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs">编辑</a>
+                <a href="#" data_id="{{v.id}}" class="btn btn-danger btn-xs art-delete">删除</a>
             </td>
     </tr>
        {{/each}}
@@ -362,57 +362,24 @@
                             // 分页功能完善的部分代码
                             var totalPages = res.totalPage;   /* 发送请求获得返回的总页数赋值给新的总页数 */
 
+                            //获取当前页,把当前页给暴露出去.
+                            window.currentPage = $pagination.twbsPagination(
+                                'getCurrentPage'); //获取当前页 /* 在后面要用到currentPage这个参数,,所有要用window暴露出来 */
+
                             if (myTotalPage != totalPages) {   /* 因为在分页里调用了twbsPagination方法从而调用了getData而这个函数发送请求有调用twbsPagination,形成了递归无限循环,,需要一个结束语句 */
                                 myTotalPage = totalPages;    /* 新的总页数赋值给我们定义的变量传给分页功能部分函数使用 */
-                                var currentPage = $pagination.twbsPagination('getCurrentPage');
+
                                 $pagination.twbsPagination('destroy');
                                 $pagination.twbsPagination($.extend({}, defaultOpts, {
                                     startPage: 1,     /* 每次筛选后默认显示到第一页 */
                                     totalPages: totalPages
+
                                 }));
                             }
                         }
-
                     }
                 });
             }
-
-
-
-            // 点击筛选按钮完成筛选功能并把结果渲染的页面
-            $('#btnSearch').on('click', function (e) {
-                e.preventDefault();
-
-                // 有多个,,建立模版引擎,,生成渲染
-                getData(1);
-
-            });
-
-
-            // 已进入页面就展示所有文章,,,相当于一进来就触发了筛选按钮的点击事件,,
-            // 并且默认前两个下拉框是 选择了所有类别和所有状态
-            // 注意:进来直接触发筛选的点击事件也就是调用了里面  getData 的函数,
-            // var category = $('#selCategory').val();  函数里这一句获取的类是前面结构代码里的option里面的文本值(所有分类)
-            $('#btnSearch').trigger('click');
-
-
-
-
-            // 进去文章分页显示,用插件 pagination
-            // $('.pagination').twbsPagination({
-            //     totalPages: 22,
-            //     visiblePages: 5,
-            //     first: '首页',
-            //     last: '尾页',
-            //     prev: '上一页',
-            //     next: '下一页',
-            //     onPageClick: function (event, page) {
-            //         getData(page)             打印page和event发现点击时,page是相应的页码,,,而event是点击相应的页码粗发的事件
-
-            //     }
-            // });
-
-
 
             // 进去文章分页显示,用插件 pagination
             var myTotalPage = 10;
@@ -434,9 +401,72 @@
 
 
 
+            // 点击筛选按钮完成筛选功能并把结果渲染的页面
+            $('#btnSearch').on('click', function (e) {
+                e.preventDefault();
+
+                //触发分页条码的首页按钮的点击事件.
+                $('.page-link').trigger('click');
+
+                // 有多个,,建立模版引擎,,生成渲染
+                getData(1);
+
+            });
+
+
+            // 已进入页面就展示所有文章,,,相当于一进来就触发了筛选按钮的点击事件,,
+            // 并且默认前两个下拉框是 选择了所有类别和所有状态
+            // 注意:进来直接触发筛选的点击事件也就是调用了里面  getData 的函数,
+            // var category = $('#selCategory').val();  函数里这一句获取的类是前面结构代码里的option里面的文本值(所有分类)
+            //$('#btnSearch').trigger('click');
 
 
 
+
+            // 进去文章分页显示,用插件 pagination
+            // $('.pagination').twbsPagination({
+            //     totalPages: 22,
+            //     visiblePages: 5,
+            //     first: '首页',
+            //     last: '尾页',
+            //     prev: '上一页',
+            //     next: '下一页',
+            //     onPageClick: function (event, page) {
+            //         getData(page)             打印page和event发现点击时,page是相应的页码,,,而event是点击相应的页码粗发的事件
+
+            //     }
+            // });
+
+
+
+
+            // 给所有的删除按钮添加剂点击事件,
+            $('tbody').on('click', '.art-delete', function () {
+
+                if (confirm('你确定删除吗?')) {
+                    var that = $(this);
+                    var id = $(this).attr('data_id');
+                    $.ajax({
+                        url: 'http://localhost:8000/admin/article_delete',
+                        data: { id: id },
+                        success: function (res) {
+                            console.log(res);
+                            if (res.code == 200) {
+
+                                // that.parent().parent().remove();  /* 用这种方法删除是后每个页面默认显示5条信息,删除后减少一条变四条了,不符合 */
+
+                                getData(currentPage);   /* 重新发送请求获取数据渲染 */
+                                // 但每次我们重新加载渲染,,,在其他页删除时候,,也会回到默认的第一页,,,
+                                // 要解决我们在当前页删除是,,加载时候在定位到这一页
+                                // 在首次进来时候默认记载的是第一页,,,,所以我们可以吧 当前页当参数传给 getData
+
+                                // 还有一个问题是,,我筛选条件为所有分类和所有转台是,,信息是回到了第一页开始显示,但页码没有跳到第一页
+                                // 解决 389行,,,点击筛选就触发了页码的首页点击事件
+                            }
+                        }
+                    });
+                }
+            });
 
         });
     </script>

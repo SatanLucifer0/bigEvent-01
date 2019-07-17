@@ -27,25 +27,21 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
-                        <input type="email" class="form-control" id="inputEmail3" value="文章标题文字">
+                        <input type="email" name='title' class="form-control article-title" id="inputEmail3" value="文章标题文字">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputPassword3" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
                         <img src="images/pic06.jpg" class="article_cover">
-                        <input type="file" id="exampleInputFile">
+                        <input type="file" name='cover' id="exampleInputFile">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
-                        <select class="form-control">
-                            <option>类别一</option>
-                            <option>类别二</option>
-                            <option>类别三</option>
+                        <select class="form-control article-cate article-type" name="type">
                             <option selected>类别四</option>
-                            <option>类别五</option>
                         </select>
                     </div>
                 </div>
@@ -54,30 +50,132 @@
                     <div class="col-sm-4">
 
                         <div class="input-group">
-                            <input type="text" class="form-control" value="2019-05-17" id="dateinput">
-                            <span class="input-group-btn">
+                            <input type="text" class="form-control article-date" name="date" disabled value="2019-05-17" id="dateinput">
+                            <!-- <span class="input-group-btn">
                                 <button class="btn btn-default" type="button"
                                     onclick="jeDate('#dateinput',{trigger:false,format: 'YYYY-MM-DD'})"><i
-                                        class="iconfont icon-icondate"></i></button>
-                            </span>
+                                    class="iconfont icon-icondate"></i></button>
+                            </span> -->
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="rich_content" name="content" placeholder="文章内容" value="文章内容">
+                        <input type="text" class="form-control article-content" id="rich_content" placeholder="文章内容"
+                            value="文章内容">
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-offset-2 col-sm-10">
-                        <button type="submit" class="btn btn-success">修改</button>
+                        <button type="submit" class="btn btn-success btn-edit">修改</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+    <script src="./js/template-web.js"></script>
+    <script id="art_cate" type="text/html">
+        {{each}}
+           <option value='{{$value.id}}'>{{$value.name}}</option>
+        {{/each}}
+    </script>
 
+
+    <script>
+
+        $(function () {
+
+            // 图片预览
+            $('#exampleInputFile').change(function(){
+
+                var icon=URL.createObjectURL(this.files[0]);
+                console.log(icon);
+                $('.article_cover').attr('src',icon);
+            });
+
+
+            //  由主页面进去到文章管理页面后,,,就发送请求把文章的所有类别展示在文章分类下拉框里 
+            $.get({
+                url: 'http://localhost:8000/admin/category_search',
+                success: function (res) {
+                    // 获取到的十多个,,用模版引擎生成并渲染在下拉框中
+                    console.log(res);
+                    if (res.code == 200) {
+                        // 返回的是一个对象里面有,name/slug/id, 对应的id是对应的类别,,,所以在模版里给类别加一个value属性,,属性值就是id
+                        // 当调用val()方法时候, 有value属性找到的就是value的属性值,没有找到就是 option标签里的文本值
+                        var html = template('art_cate', res.data);
+                        $('.article-cate').html(html);
+                    }
+                }
+            });
+
+
+
+
+
+            // 页面已经来就发送请求获取点击的那个信息显示在本页面
+            var id = window.location.search.split('=')[1];
+            console.log(id);
+
+            // 发送请求
+            $.get({
+                url:'http://localhost:8000/admin/search',
+                data:{id:id},
+                success:function(res){
+                    console.log(res);
+                    if(res.code==200){
+
+                        $('.article-title').val(res.data.title);
+                        $('.article_cover').attr('src',res.data.cover);
+                        $('.article-type').val(res.data.type);
+                        $('.article-date').val(res.data.date);
+                        $('.article-content').val(res.data.content);
+                    }
+                }
+            });
+            //点击按钮 获取之后修改内容并渲染
+            $('.btn-edit').on('click',function(){
+
+                var fm=new FormData($('.article_form')[0]);
+                fm.append('id',id);
+                fm.append('content',tinyMCE.activeEditor.getContent());
+
+                $.ajax({
+                    type:'post',
+                    url:'http://localhost:8000/admin/article_edit',
+                    data:fm,
+                    contentType:false,
+                    processData:false,
+                    success:function(res){
+                        console.log(res);
+                        if(res.code==200){
+                            alert('修改成功!');
+                        }
+                        
+                    }
+                });
+
+
+
+
+
+
+
+            });
+
+
+
+
+
+
+
+
+        });
+
+
+
+    </script>
 </body>
 
 </html>
