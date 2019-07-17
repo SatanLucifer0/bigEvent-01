@@ -221,6 +221,45 @@
         <p>电话：0755-****888    粤ICP备*******8号</p>
     </div>
 
+    <script src="./js/jquery-1.12.4.min.js"></script>
+    <script src="./js/template-web.js"></script>
+
+    <script id="newarticle" type="text/html">
+        {{each data}}
+            {{if $index==0}}
+            <li class="first">
+            {{else}}
+               <li>
+            {{/if}}
+            <a href="article.html?id={{$value.id}}" ><img src="{{$value.cover}}" alt=""></a>
+                <p>{{$value.title}}</p>
+            </li>
+        {{/each}}
+    </script>
+
+
+    <script>
+    
+    // 进入前台首页就发送请求获取最新的 5 篇新闻
+        $(function(){
+
+            $.get({
+                url:'http://localhost:8000/admin/search',
+                data:{
+                    page:1,
+                    perpage:5
+                },
+                success:function(res){
+                    if(res.code==200){
+                        var html=template('newarticle',res);
+                        $('.focus_list').html(html);
+                    }
+                }
+            });
+
+        });
+    
+    </script>
 </body>
 
 </html>
